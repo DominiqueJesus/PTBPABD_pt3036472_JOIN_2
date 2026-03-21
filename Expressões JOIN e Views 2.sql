@@ -32,22 +32,86 @@ Os Pontos totais obtidos por um aluno para uma oferta de curso (section) são de
 Dada essa relação e o nosso esquema university, escreva:
 Ache os pontos totais recebidos por aluno, para todos os cursos realizados por ele. */
 
-CREATE TABLE grade_points (
-	grade VARCHAR(2) NOT NULL,
-	points FLOAT NOT NULL,
-	PRIMARY KEY (grade, points)
-);
-INSERT INTO grade_points VALUES('A+', 4);
-INSERT INTO grade_points VALUES ('A', 3.7);
-INSERT INTO grade_points VALUES ('A-', 3.3);
-INSERT INTO grade_points VALUES ('B+', 3);
-INSERT INTO grade_points VALUES ('B', 2.7);
-INSERT INTO grade_points VALUES ('B-', 2.3);
-INSERT INTO grade_points VALUES ('C+', 2);
-INSERT INTO grade_points VALUES ('C', 1.7);
-INSERT INTO grade_points VALUES ('C-', 1.3);
+-- Versão 1
+WITH grade_points AS (SELECT s.ID,s.name,c.title,s.dept_name,t.grade,
+	CASE 
+        WHEN t.grade = 'A+' THEN 4
+		WHEN t.grade = 'A'THEN 3.7
+		WHEN t.grade = 'A-' THEN 3.3
+		WHEN t.grade = 'B+' THEN 3
+		WHEN t.grade = 'B' THEN 2.7
+		WHEN t.grade = 'B-' THEN 2.3
+		WHEN t.grade = 'C+' THEN 2
+		WHEN t.grade = 'C' THEN 1.7
+        ELSE 1.3
+     END AS points, c.credits
+FROM student s JOIN takes t
+ON s.ID = t.ID
+JOIN course c
+ON t.course_id = c.course_id) 
+SELECT ID, name, title, dept_name, grade, points, credits, (credits*points) AS "Pontos totais"
+FROM grade_points;
 
-SELECT * FROM grade_points ORDER BY points DESC;
+-- Versão 2:
+SELECT s.ID,s.name, c.title,s.dept_name,t.grade, 
+	CASE 
+        WHEN t.grade = 'A+' THEN 4
+		WHEN t.grade = 'A'THEN 3.7
+		WHEN t.grade = 'A-' THEN 3.3
+		WHEN t.grade = 'B+' THEN 3
+		WHEN t.grade = 'B' THEN 2.7
+		WHEN t.grade = 'B-' THEN 2.3
+		WHEN t.grade = 'C+' THEN 2
+		WHEN t.grade = 'C' THEN 1.7
+        ELSE 1.3
+     END AS points, 
+    c.credits, 
+    (SELECT c.credits *
+	CASE 
+        WHEN t.grade = 'A+' THEN 4
+		WHEN t.grade = 'A'THEN 3.7
+		WHEN t.grade = 'A-' THEN 3.3
+		WHEN t.grade = 'B+' THEN 3
+		WHEN t.grade = 'B' THEN 2.7
+		WHEN t.grade = 'B-' THEN 2.3
+		WHEN t.grade = 'C+' THEN 2
+		WHEN t.grade = 'C' THEN 1.7
+        ELSE 1.3
+     END AS points) AS "Pontos totais"
+FROM student s JOIN takes t
+ON s.ID = t.ID
+JOIN course c
+ON t.course_id = c.course_id;
 
-SELECT s.ID,s.name,c.title,c.dept_name,t.grade,gp.points,c.credits,
+/* Questão 5. Crie uma view a partir do resultado da Questão 4 com o nome “coeficiente_rendimento”. */
 
+CREATE VIEW coeficiente_rendimento AS 
+SELECT s.ID,s.name, c.title,s.dept_name,t.grade, 
+	CASE 
+        WHEN t.grade = 'A+' THEN 4
+		WHEN t.grade = 'A'THEN 3.7
+		WHEN t.grade = 'A-' THEN 3.3
+		WHEN t.grade = 'B+' THEN 3
+		WHEN t.grade = 'B' THEN 2.7
+		WHEN t.grade = 'B-' THEN 2.3
+		WHEN t.grade = 'C+' THEN 2
+		WHEN t.grade = 'C' THEN 1.7
+        ELSE 1.3
+     END AS points, 
+    c.credits, 
+    (SELECT c.credits *
+	CASE 
+        WHEN t.grade = 'A+' THEN 4
+		WHEN t.grade = 'A'THEN 3.7
+		WHEN t.grade = 'A-' THEN 3.3
+		WHEN t.grade = 'B+' THEN 3
+		WHEN t.grade = 'B' THEN 2.7
+		WHEN t.grade = 'B-' THEN 2.3
+		WHEN t.grade = 'C+' THEN 2
+		WHEN t.grade = 'C' THEN 1.7
+        ELSE 1.3
+     END AS points) AS "Pontos totais"
+FROM student s JOIN takes t
+ON s.ID = t.ID
+JOIN course c
+ON t.course_id = c.course_id;
