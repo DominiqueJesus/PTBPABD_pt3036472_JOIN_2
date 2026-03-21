@@ -32,7 +32,7 @@ Os Pontos totais obtidos por um aluno para uma oferta de curso (section) são de
 Dada essa relação e o nosso esquema university, escreva:
 Ache os pontos totais recebidos por aluno, para todos os cursos realizados por ele. */
 
--- Versão 1
+-- Versão 1:
 WITH grade_points AS (SELECT s.ID,s.name,c.title,s.dept_name,t.grade,
 	CASE 
         WHEN t.grade = 'A+' THEN 4
