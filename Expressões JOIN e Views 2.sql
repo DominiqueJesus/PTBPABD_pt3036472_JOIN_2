@@ -35,7 +35,7 @@ Ache os pontos totais recebidos por aluno, para todos os cursos realizados por e
 CREATE VIEW grade_points AS SELECT t.grade,
 	CASE 
         WHEN t.grade = 'A+' THEN 4
-		WHEN t.grade = 'A'THEN 3.7
+		WHEN t.grade = 'A' THEN 3.7
 		WHEN t.grade = 'A-' THEN 3.3
 		WHEN t.grade = 'B+' THEN 3
 		WHEN t.grade = 'B' THEN 2.7
@@ -43,32 +43,31 @@ CREATE VIEW grade_points AS SELECT t.grade,
 		WHEN t.grade = 'C+' THEN 2
 		WHEN t.grade = 'C' THEN 1.7
         ELSE 1.3
-     END AS points,
+     END AS points
 FROM takes t;
 
 
 SELECT s.ID,s.name, c.title,s.dept_name,t.grade, gp.points, c.credits, 
-    (c.credits * points) AS "Pontos totais"
+(c.credits * gp.points) AS "Pontos totais"
 FROM student s JOIN takes t
 ON s.ID = t.ID
 JOIN section se
 ON t.course_id = se.course_id
 JOIN course c
-ON se.course_id = c.course_id;
+ON se.course_id = c.course_id
 JOIN grade_points gp
 ON t.grade = gp.grade;
 
 /* Questão 5. Crie uma view a partir do resultado da Questão 4 com o nome “coeficiente_rendimento”. */
 
 CREATE VIEW coeficiente_rendimento AS 
-SELECT s.ID,s.name, c.title,s.dept_name,t.grade, gp.points, 
-c.credits, (c.credits * points) AS "Pontos totais"
-FROM student s 
-JOIN takes t
+SELECT s.ID,s.name, c.title,s.dept_name,t.grade, gp.points, c.credits, 
+(c.credits * gp.points) AS "Pontos totais"
+FROM student s JOIN takes t
 ON s.ID = t.ID
 JOIN section se
 ON t.course_id = se.course_id
 JOIN course c
-ON se.course_id = c.course_id;
+ON se.course_id = c.course_id
 JOIN grade_points gp
 ON t.grade = gp.grade;
